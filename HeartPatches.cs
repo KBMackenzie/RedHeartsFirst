@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using HarmonyLib;
 using BepInEx;
 using Lamb;
-using System.Linq;
 using System.Collections;
-using System.Reflection;
 using UnityEngine;
 
 namespace RedHeartsFirst
@@ -15,18 +12,14 @@ namespace RedHeartsFirst
     internal class HeartPatches
     {
         /* My heart order:
-         * 
-         * - Red
-         * - Spirit
-         * - Black
-         * - Blue
-         */
+         * 1. Red   2. Spirit   3. Black   4. Blue
+         * I might change this later, I don't know yet. */
 
         private static bool skipPatch;
 
         [HarmonyPatch(typeof(HealthPlayer), nameof(HealthPlayer.DealDamage))]
         [HarmonyPrefix]
-        public static void DealDamagePrefix(HealthPlayer __instance, ref float Damage, ref Dictionary<string, float> __state)
+        public static void DealDamagePrefix(HealthPlayer __instance, ref Dictionary<string, float> __state)
         {
             bool hasSpecialHearts = __instance.BlackHearts > 0f || __instance.BlueHearts > 0f || __instance.SpiritHearts > 0f;
 
@@ -65,7 +58,7 @@ namespace RedHeartsFirst
             float realDamage = __state["HPSum"] - newHPsum;
 
             // Heart order:
-            __instance.HP = HeartMath(__state["Red"], ref realDamage, true);
+            __instance.HP = HeartMath(__state["Red"], ref realDamage);
             __instance.SpiritHearts = HeartMath(__state["Spirit"], ref realDamage);
             bool damageBlackheart = __state["Black"] > 0f && realDamage > 0f;
             __instance.BlackHearts = HeartMath(__state["Black"], ref realDamage);
@@ -74,8 +67,6 @@ namespace RedHeartsFirst
             if (damageBlackheart)
             {
                 // Private method. Hahalol. :'3 I have to rewrite it. Hm.
-                /*
-                __instance.StartCoroutine(__instance.DamageAllEnemiesIE(1.25f + DataManager.GetWeaponDamageMultiplier(DataManager.Instance.CurrentWeaponLevel), Health.DamageAllEnemiesType.BlackHeart));*/
 
                 __instance.StartCoroutine(DamageAllEnemiesIE_MethodRewrite(__instance, 1.25f + DataManager.GetWeaponDamageMultiplier(DataManager.Instance.CurrentWeaponLevel), Health.DamageAllEnemiesType.BlackHeart));
             }
@@ -83,7 +74,7 @@ namespace RedHeartsFirst
             FileLog.Log("Postfix ran. Red Hearts: " + __instance.HP);
         }
 
-        static float HeartMath(float heartHP, ref float damage, bool isRed = false)
+        static float HeartMath(float heartHP, ref float damage) // bool isRed = false
         {
             // Return value = Heart value.
 
@@ -92,7 +83,7 @@ namespace RedHeartsFirst
                 return heartHP;
             }
 
-            float minimum = 0f; // isRed ? 1f : 0f;
+            float minimum = 0f; // isRed ? 1f : 0f; // Ignore this
             float damageTemp = damage;
 
             if(heartHP - damageTemp >= minimum)
@@ -103,7 +94,10 @@ namespace RedHeartsFirst
             else
             {
                 damage = damage - (heartHP - minimum);
-                return minimum; // heart hp minimum. 1f for red
+                return minimum; // Ignore this, it's always just 0f.
+
+                // 'minimum' exists because i was considering making the minimum 1f for red hearts
+                // Not anymore though!
             }
         }
 
@@ -140,33 +134,5 @@ namespace RedHeartsFirst
             }
             // yield break;
         }
-
-
-
-        /*
-         * static float HeartMath(float heartHP, ref float damage, bool isRed = false)
-        {
-            // Return value = Heart value.
-
-            if(damage <= 0)
-            {
-                return heartHP;
-            }
-
-            float minimum = isRed ? 1f : 0f;
-            float damageTemp = damage;
-
-            if(heartHP - damageTemp >= minimum)
-            {
-                damage = 0f;
-                return heartHP - damageTemp;
-            }
-            else
-            {
-                damage = damage - (heartHP - minimum);
-                return minimum; // heart hp minimum. 1f for red
-            }
-        }
-         */
     }
 }
