@@ -15,7 +15,7 @@ namespace RedHeartsFirst
          * 1. Red   2. Spirit   3. Black   4. Blue
          * I might change this later, I don't know yet. */
 
-        private static bool skipPatch; // patchBlackHeartAnim;
+        private static bool skipPatch;
 
         [HarmonyPatch(typeof(HealthPlayer), nameof(HealthPlayer.DealDamage))]
         [HarmonyPrefix]
@@ -63,8 +63,6 @@ namespace RedHeartsFirst
             bool damageBlackheart = __state["Black"] > 0f && realDamage > 0f;
             __instance.BlackHearts = HeartMath(__state["Black"], ref realDamage);
             __instance.BlueHearts = HeartMath(__state["Blue"], ref realDamage);
-
-            // patchBlackHeartAnim = !damageBlackheart;
 
             if (damageBlackheart)
             {
@@ -136,13 +134,5 @@ namespace RedHeartsFirst
             }
             // yield break;
         }
-
-        /*
-        [HarmonyPatch(typeof(HUD_Heart), nameof(HUD_Heart.DoScale))]
-        [HarmonyPostfix]
-        private static bool DoScale(HUD_Heart __instance)
-        {
-            return !(__instance.MyHeartType == HUD_Heart.HeartType.Black && patchBlackHeartAnim);
-        }*/
     }
 }
