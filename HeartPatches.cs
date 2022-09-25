@@ -15,7 +15,7 @@ namespace RedHeartsFirst
          * 1. Red   2. Spirit   3. Black   4. Blue
          * I might change this later, I don't know yet. */
 
-        private static bool skipPatch;
+        private static bool skipPatch; // patchBlackHeartAnim;
 
         [HarmonyPatch(typeof(HealthPlayer), nameof(HealthPlayer.DealDamage))]
         [HarmonyPrefix]
@@ -38,7 +38,7 @@ namespace RedHeartsFirst
                 { "HPSum", HPSum },
             };
 
-            FileLog.Log("Prefix ran. Red Hearts: " + __instance.HP);
+            // FileLog.Log("Prefix ran. Red Hearts: " + __instance.HP);
 
             // Because Black Hearts do DAMAGE, I'll have to add some TEMPORARY padding of Blue Hearts to cover for the Black Hearts. Trust me on this.
             float temp = __instance.BlackHearts;
@@ -64,6 +64,8 @@ namespace RedHeartsFirst
             __instance.BlackHearts = HeartMath(__state["Black"], ref realDamage);
             __instance.BlueHearts = HeartMath(__state["Blue"], ref realDamage);
 
+            // patchBlackHeartAnim = !damageBlackheart;
+
             if (damageBlackheart)
             {
                 // Private method. Hahalol. :'3 I have to rewrite it. Hm.
@@ -71,7 +73,7 @@ namespace RedHeartsFirst
                 __instance.StartCoroutine(DamageAllEnemiesIE_MethodRewrite(__instance, 1.25f + DataManager.GetWeaponDamageMultiplier(DataManager.Instance.CurrentWeaponLevel), Health.DamageAllEnemiesType.BlackHeart));
             }
 
-            FileLog.Log("Postfix ran. Red Hearts: " + __instance.HP);
+            // FileLog.Log("Postfix ran. Red Hearts: " + __instance.HP);
         }
 
         static float HeartMath(float heartHP, ref float damage) // bool isRed = false
@@ -134,5 +136,13 @@ namespace RedHeartsFirst
             }
             // yield break;
         }
+
+        /*
+        [HarmonyPatch(typeof(HUD_Heart), nameof(HUD_Heart.DoScale))]
+        [HarmonyPostfix]
+        private static bool DoScale(HUD_Heart __instance)
+        {
+            return !(__instance.MyHeartType == HUD_Heart.HeartType.Black && patchBlackHeartAnim);
+        }*/
     }
 }

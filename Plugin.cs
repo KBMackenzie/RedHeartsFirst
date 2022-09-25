@@ -23,7 +23,7 @@ namespace RedHeartsFirst
             Harmony harmony = new Harmony("kel.harmony.redheartsfirst");
             harmony.PatchAll();
 
-            FileLog.Reset();
+            // FileLog.Reset();
         }
     }
 }
