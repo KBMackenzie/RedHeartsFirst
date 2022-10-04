@@ -90,19 +90,6 @@ namespace RedHeartsFirst
             return new Vector3(w, h, 0);
         }
 
-        /*
-        Vector3 ResizeBox (Transform transform, int div = 2)
-        {
-            // 'div' is implicitly converted to float here! c:
-            Vector3 resize = new Vector3(
-                transform.localScale.x / div,
-                transform.localScale.y / div,
-                transform.localScale.z / div
-            );
-
-            return resize;
-        }*/
-
         GameObject CreateHeart(Transform parent, int i)
         {
             float x_offset = -160 + 160 * i;
@@ -117,10 +104,6 @@ namespace RedHeartsFirst
             Image img = heart.AddComponent<Image>();
             img.sprite = HeartSprites["Red"];
             img.SetNativeSize();
-
-            /*
-            BoxCollider2D col = heart.AddComponent<BoxCollider2D>();
-            col.size = UIImageSize(img);*/
 
             HeartsIcon heartScript = heart.AddComponent<HeartsIcon>();
             heartScript.menuInstance = this;
@@ -138,10 +121,17 @@ namespace RedHeartsFirst
             textBox.layer = Layer;
             textBox.transform.SetParent(parent);
             textBox.transform.localPosition = new Vector3(70f, 43f, 0);
+
             TextMeshProUGUI textMesh = textBox.AddComponent<TextMeshProUGUI>();
             textMesh.font = UIText.font;
             textMesh.fontSize = UIText.fontSize;
             textMesh.text = "Heart Order";
+
+
+            /*//+ textBox.transform.localPosition.x)
+            float xPos = parent.transform.localPosition.x / 2;
+            // textBox.transform.localPosition = new Vector3(70f, 43f, 0);
+            textBox.transform.localPosition = new Vector3(xPos, 43f, 0);*/
         }
 
         void CreateArrows(Transform parent)
@@ -157,10 +147,6 @@ namespace RedHeartsFirst
             Image img = leftArrow.AddComponent<Image>();
             img.sprite = HeartSprites["Red"]; // Add proper sprite
             img.SetNativeSize();
-
-            /*
-            BoxCollider2D col = leftArrow.AddComponent<BoxCollider2D>();
-            col.size = UIImageSize(img);*/
 
             ArrowButtons arrL = leftArrow.AddComponent<ArrowButtons>();
             arrL.menuInstance = this;
@@ -180,10 +166,6 @@ namespace RedHeartsFirst
             Image img2 = rightArrow.AddComponent<Image>();
             img2.sprite = HeartSprites["Red"]; // Add proper sprite
             img2.SetNativeSize();
-
-            /*
-            BoxCollider2D col2 = rightArrow.AddComponent<BoxCollider2D>();
-            col2.size = UIImageSize(img2);*/
 
             ArrowButtons arrR = rightArrow.AddComponent<ArrowButtons>();
             arrR.menuInstance = this;

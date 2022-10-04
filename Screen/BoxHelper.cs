@@ -34,31 +34,14 @@ namespace RedHeartsFirst
         public int id;
     }
     
-    internal class ArrowButtons : MonoBehaviour, IPointerDownHandler
+    internal class ArrowButtons : MonoBehaviour, IPointerDownHandler, ISelectHandler, IDeselectHandler
     {
         public HeartMenu menuInstance;
         public bool isLeft;
 
-        bool isSelected;
-
         // Getters
         int currentIndex => (int)SaveFile.SaveData;
         int heartStateCount => Enum.GetNames(typeof(HeartState)).Length;
-
-        void Start()
-        {
-
-        }
-
-        void OnMouseEnter()
-        {
-            isSelected = true;
-        }
-
-        void OnMouseExit()
-        {
-            isSelected = false;
-        }
 
         public void OnPointerDown(PointerEventData eventData)
         {
@@ -73,6 +56,16 @@ namespace RedHeartsFirst
             menuInstance.SetHeartIcons();
 
             FileLog.Log("Post save: " + index.ToString());
+        }
+
+        public void OnSelect(BaseEventData eventData)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnDeselect(BaseEventData eventData)
+        {
+            throw new NotImplementedException();
         }
     }
 }
