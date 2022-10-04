@@ -9,25 +9,28 @@ using UnityEngine;
 namespace RedHeartsFirst
 {
     [HarmonyPatch]
-    internal class HeartPatches
+    internal static class HeartPatches
     {
         /* My heart order:
          * 1. Red   2. Spirit   3. Black   4. Blue
          * I might change this later, I don't know yet. */
 
-        private static bool skipPatch;
+        public static HeartState Hearts => SaveFile.SaveData;
+
+        static bool skipPatch;
 
         [HarmonyPatch(typeof(HealthPlayer), nameof(HealthPlayer.DealDamage))]
         [HarmonyPrefix]
-        public static void DealDamagePrefix(HealthPlayer __instance, ref Dictionary<string, float> __state)
+        static void DealDamagePrefix(HealthPlayer __instance, ref Dictionary<string, float> __state)
         {
             bool hasSpecialHearts = __instance.BlackHearts > 0f || __instance.BlueHearts > 0f || __instance.SpiritHearts > 0f;
 
-            float HPSum = __instance.BlackHearts + __instance.BlueHearts + __instance.SpiritHearts + __instance.HP;
-            // I was gonna account for the possibility of player death, but honestly... If they ARE going to die from this then it doesn't really matter? So yay!
+            skipPatch = !hasSpecialHearts || Hearts == HeartState.Off;
+            if (skipPatch) return;
 
-            skipPatch = !hasSpecialHearts;
-            if (!hasSpecialHearts) return;
+
+            // I was gonna account for the possibility of player death, but honestly... If they ARE going to die from this then it doesn't really matter? So yay!
+            float HPSum = __instance.BlackHearts + __instance.BlueHearts + __instance.SpiritHearts + __instance.HP;
 
             __state = new Dictionary<string, float>()
             {
@@ -49,7 +52,7 @@ namespace RedHeartsFirst
 
         [HarmonyPatch(typeof(HealthPlayer), nameof(HealthPlayer.DealDamage))]
         [HarmonyPostfix]
-        public static void DealDamagePostfix(HealthPlayer __instance, ref Dictionary<string, float> __state)
+        static void DealDamagePostfix(HealthPlayer __instance, ref Dictionary<string, float> __state)
         {
             if (skipPatch) return;
 
@@ -57,12 +60,46 @@ namespace RedHeartsFirst
 
             float realDamage = __state["HPSum"] - newHPsum;
 
+            bool damageBlackheart = false;
+
             // Heart order:
-            __instance.HP = HeartMath(__state["Red"], ref realDamage);
-            __instance.SpiritHearts = HeartMath(__state["Spirit"], ref realDamage);
-            bool damageBlackheart = __state["Black"] > 0f && realDamage > 0f;
-            __instance.BlackHearts = HeartMath(__state["Black"], ref realDamage);
-            __instance.BlueHearts = HeartMath(__state["Blue"], ref realDamage);
+            switch (Hearts)
+            {
+                case HeartState.BlackRedBlue:
+                    {
+                        damageBlackheart = __state["Black"] > 0f && realDamage > 0f;
+                        __instance.BlackHearts = HeartMath(__state["Black"], ref realDamage);
+                        __instance.SpiritHearts = HeartMath(__state["Spirit"], ref realDamage);
+                        __instance.HP = HeartMath(__state["Red"], ref realDamage);
+                        __instance.BlueHearts = HeartMath(__state["Blue"], ref realDamage);
+                    }
+                    break;
+                case HeartState.RedBlackBlue:
+                    {
+                        __instance.SpiritHearts = HeartMath(__state["Spirit"], ref realDamage);
+                        __instance.HP = HeartMath(__state["Red"], ref realDamage);
+                        damageBlackheart = __state["Black"] > 0f && realDamage > 0f;
+                        __instance.BlackHearts = HeartMath(__state["Black"], ref realDamage);
+                        __instance.BlueHearts = HeartMath(__state["Blue"], ref realDamage);
+                    }
+                    break;
+                case HeartState.BlueRedBlack:
+                    {
+                        __instance.BlueHearts = HeartMath(__state["Blue"], ref realDamage);
+                        __instance.SpiritHearts = HeartMath(__state["Spirit"], ref realDamage);
+                        __instance.HP = HeartMath(__state["Red"], ref realDamage);
+                        damageBlackheart = __state["Black"] > 0f && realDamage > 0f;
+                        __instance.BlackHearts = HeartMath(__state["Black"], ref realDamage);
+                    }
+                    break;
+                default:
+                    {
+                        Plugin.myLogger.LogError("Unexpected behavior on: DealDamagePrefix");
+                        SaveFile.SaveData = HeartState.BlackRedBlue;
+                        Plugin.myLogger.LogWarning("Heart order has defaulted to: Black, Red, Blue.");
+                    }
+                    break;
+            }
 
             if (damageBlackheart)
             {
@@ -103,7 +140,7 @@ namespace RedHeartsFirst
 
 
         // Rewriting the HealthPlayer.DamageAllEnemiesIE method because it's private, LOL. :'D
-        private static IEnumerator DamageAllEnemiesIE_MethodRewrite(HealthPlayer instance, float damage, Health.DamageAllEnemiesType damageType)
+        static IEnumerator DamageAllEnemiesIE_MethodRewrite(HealthPlayer instance, float damage, Health.DamageAllEnemiesType damageType)
         {
             foreach (Health health in new List<Health>(Health.team2))
             {
