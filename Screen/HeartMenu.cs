@@ -1,16 +1,9 @@
 ﻿using HarmonyLib;
 using Lamb.UI.PauseMenu;
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.UIElements;
 using Image = UnityEngine.UI.Image;
-using Button = UnityEngine.UI.Button;
-using static UnityEngine.MeshSubsetCombineUtility;
 
 namespace RedHeartsFirst
 {

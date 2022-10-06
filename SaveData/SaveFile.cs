@@ -1,10 +1,7 @@
 ﻿using BepInEx;
-using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
-using UnityEngine.UIElements;
 
 namespace RedHeartsFirst
 {
