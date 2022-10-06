@@ -11,11 +11,7 @@ namespace RedHeartsFirst
     [HarmonyPatch]
     internal static class HeartPatches
     {
-        /* My heart order:
-         * 1. Red   2. Spirit   3. Black   4. Blue
-         * I might change this later, I don't know yet. */
-
-        public static HeartState Hearts => SaveFile.SaveData;
+        public static HeartState Hearts;
 
         static bool skipPatch;
 
@@ -41,8 +37,6 @@ namespace RedHeartsFirst
                 { "HPSum", HPSum },
             };
 
-            // FileLog.Log("Prefix ran. Red Hearts: " + __instance.HP);
-
             // Because Black Hearts do DAMAGE, I'll have to add some TEMPORARY padding of Blue Hearts to cover for the Black Hearts. Trust me on this.
             float temp = __instance.BlackHearts;
             __instance.BlackHearts = 0f;
@@ -52,7 +46,7 @@ namespace RedHeartsFirst
 
         [HarmonyPatch(typeof(HealthPlayer), nameof(HealthPlayer.DealDamage))]
         [HarmonyPostfix]
-        static void DealDamagePostfix(HealthPlayer __instance, ref Dictionary<string, float> __state)
+        static void DealDamagePostfix(HealthPlayer __instance, ref Dictionary<string, float> __state, ref bool __result)
         {
             if (skipPatch) return;
 
@@ -117,7 +111,7 @@ namespace RedHeartsFirst
 
             if(damage <= 0)
             {
-                return heartHP;
+                return Mathf.Round(heartHP);
             }
 
             float minimum = 0f; // isRed ? 1f : 0f; // Ignore this
@@ -126,12 +120,12 @@ namespace RedHeartsFirst
             if(heartHP - damageTemp >= minimum)
             {
                 damage = 0f;
-                return heartHP - damageTemp;
+                return Mathf.Round(heartHP - damageTemp);
             }
             else
             {
-                damage = damage - (heartHP - minimum);
-                return minimum; // Ignore this, it's always just 0f.
+                damage = Mathf.Round(damage - (heartHP - minimum));
+                return Mathf.Round(minimum); // Ignore this, it's always just 0f.
 
                 // 'minimum' exists because i was considering making the minimum 1f for red hearts
                 // Not anymore though!
@@ -170,6 +164,123 @@ namespace RedHeartsFirst
                 yield break;
             }
             // yield break;
+        }
+
+        [HarmonyPatch(typeof(HUD_Hearts), nameof(HUD_Hearts.UpdateHearts))]
+        [HarmonyPrefix]
+        static bool SkipUpdate(HUD_Hearts __instance, ref HealthPlayer health, ref bool DoEffects)
+        {
+            if (Hearts == HeartState.Off) return true;
+
+            UpdateHearts_Rewrite(__instance, health, DoEffects);
+            return false;
+        }
+
+        private static void UpdateHearts_Rewrite (HUD_Hearts instance, HealthPlayer health, bool DoEffects)
+        {
+            int num = -1;
+            int red = (int)health.HP;
+            int redTotal = (int)DataManager.Instance.PLAYER_TOTAL_HEALTH;
+            int spirit = (int)health.SpiritHearts;
+            int spiritTotal = (int)health.TotalSpiritHearts;
+            int blue = (int)health.BlueHearts;
+            int black = (int)health.BlackHearts;
+
+            while (++num < instance.HeartIcons.Count)
+            {
+                HUD_Heart hud_Heart = instance.HeartIcons[num];
+                if (Mathf.Ceil(DataManager.Instance.PLAYER_TOTAL_HEALTH / 2f) + Mathf.Ceil(health.TotalSpiritHearts / 2f) + Mathf.Ceil(DataManager.Instance.PLAYER_BLUE_HEARTS / 2f) + Mathf.Ceil(DataManager.Instance.PLAYER_BLACK_HEARTS / 2f) <= (float)num)
+                {
+                    if (hud_Heart.MyState == HUD_Heart.HeartState.HeartHalf && hud_Heart.MyHeartType == HUD_Heart.HeartType.Blue)
+                    {
+                        hud_Heart.Activate(false, true);
+                    }
+                    else
+                    {
+                        hud_Heart.Activate(false, false);
+                    }
+                }
+                else
+                {
+                    hud_Heart.Activate(true, false);
+                    if (redTotal >= 1)
+                    {
+                        if (red >= 2)
+                        {
+                            hud_Heart.SetSprite(HUD_Heart.HeartState.HeartFull, DoEffects, HUD_Heart.HeartType.Red);
+                            red -= 2;
+                        }
+                        else if (red == 1)
+                        {
+                            if (redTotal >= 2)
+                            {
+                                hud_Heart.SetSprite(HUD_Heart.HeartState.HeartHalfFull, DoEffects, HUD_Heart.HeartType.Red);
+                            }
+                            else
+                            {
+                                hud_Heart.SetSprite(HUD_Heart.HeartState.HeartHalf, DoEffects, HUD_Heart.HeartType.Red);
+                            }
+                            red--;
+                        }
+                        else if (redTotal == 1)
+                        {
+                            hud_Heart.SetSprite(HUD_Heart.HeartState.HalfHeartContainer, DoEffects, HUD_Heart.HeartType.Red);
+                        }
+                        else
+                        {
+                            hud_Heart.SetSprite(HUD_Heart.HeartState.HeartContainer, DoEffects, HUD_Heart.HeartType.Red);
+                        }
+                        redTotal -= 2;
+                    }
+                    else if (spiritTotal >= 1)
+                    {
+                        if (spirit >= 2)
+                        {
+                            hud_Heart.SetSprite(HUD_Heart.HeartState.HeartFull, DoEffects, HUD_Heart.HeartType.Spirit);
+                            spirit -= 2;
+                        }
+                        else if (spirit == 1)
+                        {
+                            hud_Heart.SetSprite(HUD_Heart.HeartState.HeartHalf, DoEffects, HUD_Heart.HeartType.Spirit);
+                            spirit--;
+                        }
+                        else if (spiritTotal == 1)
+                        {
+                            hud_Heart.SetSprite(HUD_Heart.HeartState.HalfHeartContainer, DoEffects, HUD_Heart.HeartType.Spirit);
+                        }
+                        else
+                        {
+                            hud_Heart.SetSprite(HUD_Heart.HeartState.HeartContainer, DoEffects, HUD_Heart.HeartType.Spirit);
+                        }
+                        spiritTotal -= 2;
+                    }
+                    else if (blue > 0 || black > 0)
+                    {
+                        /*num >= Mathf.Ceil(DataManager.Instance.PLAYER_TOTAL_HEALTH / 2f) + Mathf.Ceil(health.TotalSpiritHearts / 2f) || true*/
+
+                        if (blue >= 2)
+                        {
+                            hud_Heart.SetSprite(HUD_Heart.HeartState.HeartFull, DoEffects, HUD_Heart.HeartType.Blue);
+                            blue -= 2;
+                        }
+                        else if (blue == 1)
+                        {
+                            hud_Heart.SetSprite(HUD_Heart.HeartState.HeartHalf, DoEffects, HUD_Heart.HeartType.Blue);
+                            blue--;
+                        }
+                        else if (black >= 2)
+                        {
+                            hud_Heart.SetSprite(HUD_Heart.HeartState.HeartFull, DoEffects, HUD_Heart.HeartType.Black);
+                            black -= 2;
+                        }
+                        else if (black == 1)
+                        {
+                            hud_Heart.SetSprite(HUD_Heart.HeartState.HeartHalf, DoEffects, HUD_Heart.HeartType.Black);
+                            black--;
+                        }
+                    }
+                }
+            }
         }
     }
 }

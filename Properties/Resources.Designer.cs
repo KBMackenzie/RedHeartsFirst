@@ -63,6 +63,26 @@ namespace RedHeartsFirst.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] ArrowL {
+            get {
+                object obj = ResourceManager.GetObject("ArrowL", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] ArrowR {
+            get {
+                object obj = ResourceManager.GetObject("ArrowR", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] BlackHeart {
             get {
                 object obj = ResourceManager.GetObject("BlackHeart", resourceCulture);

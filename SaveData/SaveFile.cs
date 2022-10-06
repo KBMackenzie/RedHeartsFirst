@@ -12,6 +12,9 @@ namespace RedHeartsFirst
     {
         static string savePath = null;
 
+        public delegate void SaveEvent();
+        public static event SaveEvent SaveActions;
+
         public static string SavePath
         {
             get
@@ -30,7 +33,8 @@ namespace RedHeartsFirst
         {
             int index = (int)data;
             File.WriteAllText(SavePath, index.ToString());
-            FileLog.Log($"Written {index}");
+
+            SaveActions?.Invoke();
         }
 
         static HeartState LoadSave()

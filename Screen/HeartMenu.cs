@@ -10,6 +10,7 @@ using UnityEngine.UI;
 using UnityEngine.UIElements;
 using Image = UnityEngine.UI.Image;
 using Button = UnityEngine.UI.Button;
+using static UnityEngine.MeshSubsetCombineUtility;
 
 namespace RedHeartsFirst
 {
@@ -24,6 +25,12 @@ namespace RedHeartsFirst
             { "Black",  TexLoader.MakeSprite(Properties.Resources.BlackHeart) },
             { "Red",    TexLoader.MakeSprite(Properties.Resources.RedHeart)   },
             { "Blue",   TexLoader.MakeSprite(Properties.Resources.BlueHeart)  },
+        };
+
+        public readonly Dictionary<string, Sprite> ArrowSprites = new Dictionary<string, Sprite>()
+        {
+            { "Left",     TexLoader.MakeSprite(Properties.Resources.ArrowL) },
+            { "Right",    TexLoader.MakeSprite(Properties.Resources.ArrowR) }
         };
 
         Sprite BoxSprite = TexLoader.MakeSprite(Properties.Resources.HeartBox3, 0.8f);
@@ -70,15 +77,12 @@ namespace RedHeartsFirst
             img.SetNativeSize();
             img.preserveAspect = true;
 
-            BoxCollider2D col = box.AddComponent<BoxCollider2D>();
-            col.size = UIImageSize(img);
-
             BoxHelper helper = box.AddComponent<BoxHelper>();
             helper.menuInstance = this;
             helper.img = img;
             helper.canvas = canvas;
 
-            box.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+            box.transform.localScale = new Vector3(0.5f, 0.5f, 0);
 
             return box;
         }
@@ -120,18 +124,14 @@ namespace RedHeartsFirst
             textBox.name = "UIText_Heart";
             textBox.layer = Layer;
             textBox.transform.SetParent(parent);
-            textBox.transform.localPosition = new Vector3(70f, 43f, 0);
 
             TextMeshProUGUI textMesh = textBox.AddComponent<TextMeshProUGUI>();
             textMesh.font = UIText.font;
             textMesh.fontSize = UIText.fontSize;
             textMesh.text = "Heart Order";
 
-
-            /*//+ textBox.transform.localPosition.x)
-            float xPos = parent.transform.localPosition.x / 2;
-            // textBox.transform.localPosition = new Vector3(70f, 43f, 0);
-            textBox.transform.localPosition = new Vector3(xPos, 43f, 0);*/
+            textBox.transform.localPosition = new Vector3(0, 63f, 0);
+            textMesh.alignment = TextAlignmentOptions.Center;
         }
 
         void CreateArrows(Transform parent)
@@ -145,12 +145,14 @@ namespace RedHeartsFirst
             leftArrow.transform.localScale = new Vector3(1.2f, 1.2f, 0);
 
             Image img = leftArrow.AddComponent<Image>();
-            img.sprite = HeartSprites["Red"]; // Add proper sprite
+            img.sprite = ArrowSprites["Left"];
             img.SetNativeSize();
 
             ArrowButtons arrL = leftArrow.AddComponent<ArrowButtons>();
             arrL.menuInstance = this;
+            arrL.img = img;
             arrL.isLeft = true;
+            arrL.Normal = ArrowSprites["Left"];
 
             Arrows.Add("Left", arrL);
 
@@ -164,12 +166,14 @@ namespace RedHeartsFirst
             rightArrow.transform.localScale = new Vector3(1.2f, 1.2f, 0);
 
             Image img2 = rightArrow.AddComponent<Image>();
-            img2.sprite = HeartSprites["Red"]; // Add proper sprite
+            img2.sprite = ArrowSprites["Right"];
             img2.SetNativeSize();
 
             ArrowButtons arrR = rightArrow.AddComponent<ArrowButtons>();
             arrR.menuInstance = this;
+            arrR.img = img2;
             arrR.isLeft = false;
+            arrR.Normal = ArrowSprites["Right"];
 
             Arrows.Add("Right", arrR);
         }
@@ -185,7 +189,7 @@ namespace RedHeartsFirst
 
         (Sprite, Sprite, Sprite) GetHeartStateIcons ()
         {
-            switch (HeartPatches.Hearts)
+            switch (SaveFile.SaveData)
             {
                 case (HeartState.Off):
                     return (HeartSprites["Red"], HeartSprites["Blue"], HeartSprites["Black"]);

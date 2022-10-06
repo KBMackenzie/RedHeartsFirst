@@ -34,10 +34,13 @@ namespace RedHeartsFirst
         public int id;
     }
     
-    internal class ArrowButtons : MonoBehaviour, IPointerDownHandler, ISelectHandler, IDeselectHandler
+    internal class ArrowButtons : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler, IPointerExitHandler
     {
         public HeartMenu menuInstance;
+        public Image img;
         public bool isLeft;
+
+        public Sprite Normal;
 
         // Getters
         int currentIndex => (int)SaveFile.SaveData;
@@ -58,14 +61,20 @@ namespace RedHeartsFirst
             FileLog.Log("Post save: " + index.ToString());
         }
 
-        public void OnSelect(BaseEventData eventData)
+        public void OnPointerEnter(PointerEventData eventData)
         {
-            throw new NotImplementedException();
+            ChangeColor(isRed:true);
         }
 
-        public void OnDeselect(BaseEventData eventData)
+        public void OnPointerExit(PointerEventData eventData)
         {
-            throw new NotImplementedException();
+            ChangeColor(isRed:false);
+        }
+
+        void ChangeColor(bool isRed)
+        {
+            Color temp = isRed ? new Color(1f, 0, 0, 1f) : new Color(1f, 1f, 1f, 1f);
+            img.color = temp;
         }
     }
 }
