@@ -20,13 +20,13 @@ namespace RedHeartsFirst
             }
         }
 
-        public static HeartState SaveData
+        public static HeartOrder SaveData
         {
             get { return LoadSave(); }
             set { SaveToFile(value); }
         }
 
-        static void SaveToFile (HeartState data)
+        static void SaveToFile (HeartOrder data)
         {
             int index = (int)data;
             File.WriteAllText(SavePath, index.ToString());
@@ -34,7 +34,7 @@ namespace RedHeartsFirst
             SaveActions?.Invoke();
         }
 
-        static HeartState LoadSave()
+        static HeartOrder LoadSave()
         {
             string data = File.ReadAllText(SavePath).Trim();
             bool flag = Int32.TryParse(data, out int index);
@@ -42,10 +42,10 @@ namespace RedHeartsFirst
             {
                 Plugin.myLogger.LogError($"Couldn't read config data from {Path.GetFileName(SavePath)}.");
                 Plugin.myLogger.LogWarning("Heart order has defaulted to: Black, Red, Blue.");
-                SaveData = HeartState.BlackRedBlue;
-                return HeartState.BlackRedBlue;
+                SaveData = HeartOrder.BlackRedBlue;
+                return HeartOrder.BlackRedBlue;
             }
-            return (HeartState)index;
+            return (HeartOrder)index;
         }
 
         static string FindSave()

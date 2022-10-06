@@ -11,7 +11,7 @@ namespace RedHeartsFirst
     [HarmonyPatch]
     internal static class HeartPatches
     {
-        public static HeartState Hearts;
+        public static HeartOrder Hearts;
 
         static bool skipPatch;
 
@@ -21,7 +21,7 @@ namespace RedHeartsFirst
         {
             bool hasSpecialHearts = __instance.BlackHearts > 0f || __instance.BlueHearts > 0f || __instance.SpiritHearts > 0f;
 
-            skipPatch = !hasSpecialHearts || Hearts == HeartState.Off;
+            skipPatch = !hasSpecialHearts || Hearts == HeartOrder.Off;
             if (skipPatch) return;
 
 
@@ -59,7 +59,7 @@ namespace RedHeartsFirst
             // Heart order:
             switch (Hearts)
             {
-                case HeartState.BlackRedBlue:
+                case HeartOrder.BlackRedBlue:
                     {
                         damageBlackheart = __state["Black"] > 0f && realDamage > 0f;
                         __instance.BlackHearts = HeartMath(__state["Black"], ref realDamage);
@@ -68,7 +68,7 @@ namespace RedHeartsFirst
                         __instance.BlueHearts = HeartMath(__state["Blue"], ref realDamage);
                     }
                     break;
-                case HeartState.RedBlackBlue:
+                case HeartOrder.RedBlackBlue:
                     {
                         __instance.SpiritHearts = HeartMath(__state["Spirit"], ref realDamage);
                         __instance.HP = HeartMath(__state["Red"], ref realDamage);
@@ -77,7 +77,7 @@ namespace RedHeartsFirst
                         __instance.BlueHearts = HeartMath(__state["Blue"], ref realDamage);
                     }
                     break;
-                case HeartState.BlueRedBlack:
+                case HeartOrder.BlueRedBlack:
                     {
                         __instance.BlueHearts = HeartMath(__state["Blue"], ref realDamage);
                         __instance.SpiritHearts = HeartMath(__state["Spirit"], ref realDamage);
@@ -89,7 +89,7 @@ namespace RedHeartsFirst
                 default:
                     {
                         Plugin.myLogger.LogError("Unexpected behavior on: DealDamagePrefix");
-                        SaveFile.SaveData = HeartState.BlackRedBlue;
+                        SaveFile.SaveData = HeartOrder.BlackRedBlue;
                         Plugin.myLogger.LogWarning("Heart order has defaulted to: Black, Red, Blue.");
                     }
                     break;
@@ -170,7 +170,7 @@ namespace RedHeartsFirst
         [HarmonyPrefix]
         static bool SkipUpdate(HUD_Hearts __instance, ref HealthPlayer health, ref bool DoEffects)
         {
-            if (Hearts == HeartState.Off) return true;
+            if (Hearts == HeartOrder.Off) return true;
 
             UpdateHearts_Rewrite(__instance, health, DoEffects);
             return false;

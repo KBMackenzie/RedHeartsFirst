@@ -4,7 +4,7 @@ using System.Text;
 
 namespace RedHeartsFirst
 {
-    public enum HeartState
+    public enum HeartOrder
     {
         Off,
         BlackRedBlue,

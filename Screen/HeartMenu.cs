@@ -184,16 +184,16 @@ namespace RedHeartsFirst
         {
             switch (SaveFile.SaveData)
             {
-                case (HeartState.Off):
+                case (HeartOrder.Off):
                     return (HeartSprites["Red"], HeartSprites["Blue"], HeartSprites["Black"]);
 
-                case (HeartState.BlackRedBlue):
+                case (HeartOrder.BlackRedBlue):
                     return (HeartSprites["Black"], HeartSprites["Red"], HeartSprites["Blue"]);
 
-                case (HeartState.RedBlackBlue):
+                case (HeartOrder.RedBlackBlue):
                     return (HeartSprites["Red"], HeartSprites["Black"], HeartSprites["Blue"]);
 
-                case (HeartState.BlueRedBlack):
+                case (HeartOrder.BlueRedBlack):
                     return (HeartSprites["Blue"], HeartSprites["Red"], HeartSprites["Black"]);
 
                 default: /* Yes, I know having 'default' here is redundant, but still. */

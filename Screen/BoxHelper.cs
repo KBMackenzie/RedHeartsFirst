@@ -41,7 +41,7 @@ namespace RedHeartsFirst
 
         // Getters
         int currentIndex => (int)SaveFile.SaveData;
-        int heartStateCount => Enum.GetNames(typeof(HeartState)).Length;
+        int heartStateCount => Enum.GetNames(typeof(HeartOrder)).Length;
 
         public void OnPointerDown(PointerEventData eventData)
         {
@@ -50,7 +50,7 @@ namespace RedHeartsFirst
             if (index >= heartStateCount) index = 0;
             if (index < 0) index = heartStateCount - 1;
 
-            SaveFile.SaveData = (HeartState)index;
+            SaveFile.SaveData = (HeartOrder)index;
             menuInstance.SetHeartIcons();
         }
 
