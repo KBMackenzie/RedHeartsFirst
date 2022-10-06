@@ -62,9 +62,7 @@ namespace RedHeartsFirst
                 Plugin.myLogger.LogWarning($"Couldn't find file \"{configName}\". Creating that file instead.");
                 string path = Path.Combine(Paths.PluginPath, configName);
                 File.Create(path).Dispose();
-                FileLog.Log("Here we go.");
                 savePath = path;
-                FileLog.Log("Ah.");
                 return savePath;
             }
             else if (files.Length > 1)

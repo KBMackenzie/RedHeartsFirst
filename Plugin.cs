@@ -20,7 +20,7 @@ namespace RedHeartsFirst
 
             Logger.LogInfo($"Loaded {PluginName} successfully!");
 
-            FileLog.Reset();
+            // FileLog.Reset();
 
             Harmony harmony = new Harmony("kel.harmony.redheartsfirst");
             harmony.PatchAll();

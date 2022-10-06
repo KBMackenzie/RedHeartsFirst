@@ -53,12 +53,8 @@ namespace RedHeartsFirst
             if (index >= heartStateCount) index = 0;
             if (index < 0) index = heartStateCount - 1;
 
-            FileLog.Log("Pre-save: " + index.ToString());
-
             SaveFile.SaveData = (HeartState)index;
             menuInstance.SetHeartIcons();
-
-            FileLog.Log("Post save: " + index.ToString());
         }
 
         public void OnPointerEnter(PointerEventData eventData)
