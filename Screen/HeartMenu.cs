@@ -26,7 +26,7 @@ namespace RedHeartsFirst
             { "Right",    TexLoader.MakeSprite(Properties.Resources.ArrowR) }
         };
 
-        Sprite BoxSprite = TexLoader.MakeSprite(Properties.Resources.HeartBox3, 0.8f);
+        Sprite BoxSprite = TexLoader.MakeSprite(Properties.Resources.HeartBox3);
         int HeartCount = 3;
 
         public TextMeshProUGUI UIText;
@@ -69,6 +69,7 @@ namespace RedHeartsFirst
             img.sprite = BoxSprite;
             img.SetNativeSize();
             img.preserveAspect = true;
+            ChangeOpacity(ref img, 0.8f);
 
             BoxHelper helper = box.AddComponent<BoxHelper>();
             helper.menuInstance = this;
@@ -78,6 +79,13 @@ namespace RedHeartsFirst
             box.transform.localScale = new Vector3(0.5f, 0.5f, 0);
 
             return box;
+        }
+
+        void ChangeOpacity(ref Image image, float opacity)
+        {
+            Color color = image.color;
+            color.a = opacity;
+            image.color = color;
         }
 
         Vector3 UIImageSize(Image img)
@@ -201,6 +209,14 @@ namespace RedHeartsFirst
             }
         }
 
+        // Handle keyboard presses!
+        void Update()
+        {
+            // Simulate right arrow press
+            if (Input.GetKeyDown("h"))
+            {
+                Arrows["Right"].ArrowClick();
+            }
+        }
     }
-    
 }
