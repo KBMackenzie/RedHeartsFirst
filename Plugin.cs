@@ -14,7 +14,7 @@ namespace RedHeartsFirst
     {
         public const string PluginGuid  = "kel.cotl.redheartsfirst";
         public const string PluginName  = "Red Hearts First";
-        public const string PluginVer   = "1.0.0";
+        public const string PluginVer   = "2.0.0";
 
         internal static ManualLogSource myLogger;
 
