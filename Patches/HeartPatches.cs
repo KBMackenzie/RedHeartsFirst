@@ -5,6 +5,7 @@ using BepInEx;
 using Lamb;
 using System.Collections;
 using UnityEngine;
+using FMOD.Studio;
 
 namespace RedHeartsFirst
 {
@@ -14,6 +15,13 @@ namespace RedHeartsFirst
         public static HeartOrder Hearts;
 
         static bool skipPatch;
+
+        enum UsingHearts // I haven't really used this enum 
+        {
+            Red,
+            Blue,
+            Black,
+        }
 
         [HarmonyPatch(typeof(HealthPlayer), nameof(HealthPlayer.DealDamage))]
         [HarmonyPrefix]
@@ -97,15 +105,13 @@ namespace RedHeartsFirst
 
             if (damageBlackheart)
             {
-                // Private method. Hahalol. :'3 I have to rewrite it. Hm.
+                // Private method. I decided to rewrite it instead.
 
                 __instance.StartCoroutine(DamageAllEnemiesIE_MethodRewrite(__instance, 1.25f + DataManager.GetWeaponDamageMultiplier(DataManager.Instance.CurrentWeaponLevel), Health.DamageAllEnemiesType.BlackHeart));
             }
-
-            // FileLog.Log("Postfix ran. Red Hearts: " + __instance.HP);
         }
 
-        static float HeartMath(float heartHP, ref float damage) // bool isRed = false
+        static float HeartMath(float heartHP, ref float damage)
         {
             // Return value = Heart value.
 
@@ -114,26 +120,45 @@ namespace RedHeartsFirst
                 return Mathf.Round(heartHP);
             }
 
-            float minimum = 0f; // isRed ? 1f : 0f; // Ignore this
             float damageTemp = damage;
 
-            if(heartHP - damageTemp >= minimum)
+            if(heartHP - damageTemp >= 0)
             {
                 damage = 0f;
                 return Mathf.Round(heartHP - damageTemp);
             }
             else
             {
-                damage = Mathf.Round(damage - (heartHP - minimum));
-                return Mathf.Round(minimum); // Ignore this, it's always just 0f.
-
-                // 'minimum' exists because i was considering making the minimum 1f for red hearts
-                // Not anymore though!
+                damage = Mathf.Round(damage - heartHP);
+                return 0f;
             }
         }
 
 
-        // Rewriting the HealthPlayer.DamageAllEnemiesIE method because it's private, LOL. :'D
+        [HarmonyPatch(typeof(HUD_Heart), "Scale", MethodType.Setter)]
+        [HarmonyPrefix]
+        static bool FixScale(HUD_Heart __instance, ref float ____Scale)
+        {
+            bool flag = __instance.MyHeartType != HUD_Heart.HeartType.Black;
+            if (flag) return true;
+
+            ____Scale = 1f;
+            return false;
+        }
+
+
+        [HarmonyPatch(typeof(HUD_Hearts), nameof(HUD_Hearts.UpdateHearts))]
+        [HarmonyPrefix]
+        static bool SkipUpdate(HUD_Hearts __instance, ref HealthPlayer health, ref bool DoEffects)
+        {
+            if (Hearts == HeartOrder.Off) return true;
+
+            UpdateHearts_Rewrite(__instance, health, DoEffects);
+            return false;
+        }
+
+
+        // PRIVATE METHOD REWRITINGS:
         static IEnumerator DamageAllEnemiesIE_MethodRewrite(HealthPlayer instance, float damage, Health.DamageAllEnemiesType damageType)
         {
             foreach (Health health in new List<Health>(Health.team2))
@@ -163,18 +188,9 @@ namespace RedHeartsFirst
                 }
                 yield break;
             }
-            // yield break;
         }
 
-        [HarmonyPatch(typeof(HUD_Hearts), nameof(HUD_Hearts.UpdateHearts))]
-        [HarmonyPrefix]
-        static bool SkipUpdate(HUD_Hearts __instance, ref HealthPlayer health, ref bool DoEffects)
-        {
-            if (Hearts == HeartOrder.Off) return true;
 
-            UpdateHearts_Rewrite(__instance, health, DoEffects);
-            return false;
-        }
 
         private static void UpdateHearts_Rewrite (HUD_Hearts instance, HealthPlayer health, bool DoEffects)
         {
@@ -191,11 +207,11 @@ namespace RedHeartsFirst
                 HUD_Heart hud_Heart = instance.HeartIcons[num];
                 if (Mathf.Ceil(DataManager.Instance.PLAYER_TOTAL_HEALTH / 2f) + Mathf.Ceil(health.TotalSpiritHearts / 2f) + Mathf.Ceil(DataManager.Instance.PLAYER_BLUE_HEARTS / 2f) + Mathf.Ceil(DataManager.Instance.PLAYER_BLACK_HEARTS / 2f) <= (float)num)
                 {
-                    if (hud_Heart.MyState == HUD_Heart.HeartState.HeartHalf && hud_Heart.MyHeartType == HUD_Heart.HeartType.Blue)
+                    if (hud_Heart.MyState == HUD_Heart.HeartState.HeartHalf && hud_Heart.MyHeartType == HUD_Heart.HeartType.Blue && false) // the "false" is so this is skipped altogether but I can still come back to it and change it easily. yes. i know this is scuffed and unintuitive. yes. i know.
                     {
                         hud_Heart.Activate(false, true);
                     }
-                    else
+                    else if ((hud_Heart.MyHeartType == HUD_Heart.HeartType.Blue && blue <= 0) || (hud_Heart.MyHeartType == HUD_Heart.HeartType.Black && black <= 0) || (hud_Heart.MyHeartType == HUD_Heart.HeartType.Red && red <= 0) || (hud_Heart.MyHeartType == HUD_Heart.HeartType.Spirit && spirit <= 0))
                     {
                         hud_Heart.Activate(false, false);
                     }

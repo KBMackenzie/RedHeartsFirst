@@ -1,6 +1,5 @@
 ﻿using BepInEx;
 using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace RedHeartsFirst
@@ -40,7 +39,7 @@ namespace RedHeartsFirst
             bool flag = Int32.TryParse(data, out int index);
             if (!flag)
             {
-                Plugin.myLogger.LogError($"Couldn't read config data from {Path.GetFileName(SavePath)}.");
+                Plugin.myLogger.LogWarning($"Couldn't read config data from {Path.GetFileName(SavePath)}.");
                 Plugin.myLogger.LogWarning("Heart order has defaulted to: Black, Red, Blue.");
                 SaveData = HeartOrder.BlackRedBlue;
                 return HeartOrder.BlackRedBlue;

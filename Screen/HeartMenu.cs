@@ -1,6 +1,4 @@
-﻿using HarmonyLib;
-using Lamb.UI.PauseMenu;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using Image = UnityEngine.UI.Image;
@@ -193,7 +191,7 @@ namespace RedHeartsFirst
             switch (SaveFile.SaveData)
             {
                 case (HeartOrder.Off):
-                    return (HeartSprites["Red"], HeartSprites["Blue"], HeartSprites["Black"]);
+                    return (HeartSprites["Black"], HeartSprites["Blue"], HeartSprites["Red"]);
 
                 case (HeartOrder.BlackRedBlue):
                     return (HeartSprites["Black"], HeartSprites["Red"], HeartSprites["Blue"]);
