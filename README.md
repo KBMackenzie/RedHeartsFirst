@@ -1,8 +1,11 @@
-A Cult of the Lamb mod that adds a little 'Heart Order' menu to the game's pause menu, letting you choose what hearts you will take damage to first.
+A Cult of the Lamb mod that adds a little 'Heart Order' menu to the game's pause menu, letting you choose in what order your hearts take damage.
 
 The little menu window is **draggable** and looks like this:
 
 ![Heart Order Menu](https://i.imgur.com/09P1TXs.gif)
+
+You can navigate through the options by clicking the arrows.
+You can also navigate through the options with your keyboard by pressing H.
 
 ## Installation
 This mod’s only dependency is BepInEx. It's also fully compatible with my 'Weapon Selector' mod.
