@@ -2,9 +2,7 @@ using BepInEx;
 using BepInEx.Bootstrap;
 using BepInEx.Logging;
 using HarmonyLib;
-using I2.Loc;
-using Lamb; // CotL Assembly
-using Socket.Newtonsoft.Json.Utilities.LinqBridge;
+using System.Linq;
 
 namespace RedHeartsFirst
 {
@@ -14,7 +12,7 @@ namespace RedHeartsFirst
     {
         public const string PluginGuid  = "kel.cotl.redheartsfirst";
         public const string PluginName  = "Red Hearts First";
-        public const string PluginVer   = "2.0.0";
+        public const string PluginVer   = "2.0.2";
 
         internal static ManualLogSource myLogger;
 

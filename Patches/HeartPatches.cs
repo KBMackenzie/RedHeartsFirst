@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using HarmonyLib;
-using BepInEx;
-using Lamb;
 using System.Collections;
 using UnityEngine;
-using FMOD.Studio;
 
 namespace RedHeartsFirst
 {
